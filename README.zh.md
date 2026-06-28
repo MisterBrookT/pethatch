@@ -32,6 +32,20 @@ Gallery: <https://misterbrookt.github.io/pethatch/>
 
 这会把 `pet.json` 和 `spritesheet.webp` 写入 `~/.codex/pets/xiaochai/`。
 
+在 macOS 上运行小柴：
+
+```bash
+./bin/pethatch run xiaochai
+```
+
+快速体验压缩版行为：
+
+```bash
+./bin/pethatch run xiaochai --demo
+```
+
+Demo 模式会把真实分钟压缩成几秒，让你快速看到小柴从工作、检查、提醒休息，到软罢工的状态变化。
+
 `~/.codex/pets/<id>` 是 Codex Pets 和 OpenPets-compatible runtime 共用的本地约定。其它 runtime 可以读取同一目录，或从本仓库导入宠物包。
 
 ## 宠物包

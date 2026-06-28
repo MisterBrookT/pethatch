@@ -59,6 +59,7 @@ def cmd_list(_: argparse.Namespace) -> int:
 
 
 def cmd_validate(_: argparse.Namespace) -> int:
+    subprocess.run([sys.executable, "-m", "py_compile", str(ROOT / "scripts" / "run-pet.py")], check=True)
     subprocess.run([sys.executable, str(ROOT / "scripts" / "validate-pets.py")], check=True)
     subprocess.run([sys.executable, str(ROOT / "scripts" / "validate-site.py")], check=True)
     return 0
@@ -96,6 +97,33 @@ def cmd_install(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_run(args: argparse.Namespace) -> int:
+    entry = find_pet(args.pet_id)
+    pet_dir = ROOT / entry["path"]
+    command = [
+        sys.executable,
+        str(ROOT / "scripts" / "run-pet.py"),
+        str(pet_dir),
+    ]
+    if args.demo:
+        command.append("--demo")
+    if args.minute_seconds is not None:
+        command.extend(["--minute-seconds", str(args.minute_seconds)])
+    if args.quota_remaining is not None:
+        command.extend(["--quota-remaining", str(args.quota_remaining)])
+    if args.duration:
+        command.extend(["--duration", str(args.duration)])
+    if args.log_events:
+        command.append("--log-events")
+    if args.x is not None:
+        command.extend(["--x", str(args.x)])
+    if args.y is not None:
+        command.extend(["--y", str(args.y)])
+    if args.pin:
+        command.append("--pin")
+    return subprocess.run(command, check=False).returncode
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="pethatch",
@@ -123,6 +151,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Also copy contact-sheet and preview assets.",
     )
     install_parser.set_defaults(func=cmd_install)
+
+    run_parser = sub.add_parser("run", help="Run a pet as a tiny macOS desktop companion.")
+    run_parser.add_argument("pet_id", help="Pet id from manifest.json, e.g. xiaochai.")
+    run_parser.add_argument("--demo", action="store_true", help="Compress behavior thresholds for a quick local demo.")
+    run_parser.add_argument("--minute-seconds", type=float, default=None, help="Seconds per pet minute.")
+    run_parser.add_argument("--quota-remaining", type=float, default=None, help="Quota remaining fraction, e.g. 0.15.")
+    run_parser.add_argument("--duration", type=float, default=0.0, help="Exit after this many seconds.")
+    run_parser.add_argument("--log-events", action="store_true", help="Print event transitions to stdout.")
+    run_parser.add_argument("--x", type=float, default=None, help="Initial window x position.")
+    run_parser.add_argument("--y", type=float, default=None, help="Initial window y position.")
+    run_parser.add_argument("--pin", action="store_true", help="Use a higher always-on-top level.")
+    run_parser.set_defaults(func=cmd_run)
 
     return parser
 

@@ -34,6 +34,20 @@ Install Xiaochai:
 
 This writes `pet.json` and `spritesheet.webp` to `~/.codex/pets/xiaochai/`.
 
+Run Xiaochai on macOS:
+
+```bash
+./bin/pethatch run xiaochai
+```
+
+Try the compressed behavior demo:
+
+```bash
+./bin/pethatch run xiaochai --demo
+```
+
+In demo mode, Xiaochai moves from active work to focus check, rest reminder, and soft strike in seconds instead of real minutes.
+
 `~/.codex/pets/<id>` is the shared local convention used by Codex Pets and OpenPets-compatible runtimes. Other runtimes can read the same folder or import the pack from this repo.
 
 ## Pet Packs
