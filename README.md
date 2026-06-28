@@ -8,6 +8,10 @@ PetHatch collects small animated pet packs for Codex-compatible desktop pet runt
 
 It is not tied to Kaji. Kaji can consume PetHatch packs, but every pet should remain useful without Kaji.
 
+```bash
+./bin/pethatch install xiaochai --force
+```
+
 <p align="center">
   <img src="pets/xiaochai/contact-sheet.png" width="820" alt="Xiaochai pet contact sheet">
 </p>
