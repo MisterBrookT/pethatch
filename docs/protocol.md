@@ -141,3 +141,45 @@ Modes are advisory:
 - `soft`: low-friction nudge.
 - `medium`: visible reminder.
 - `hard`: strong visual refusal, still not a hard block unless a runtime chooses to enforce it.
+
+## Runtime Config
+
+Pet packs may include a `runtime.json` next to `pet.json`. `pet.json` describes the portable asset and event contract. `runtime.json` describes one local behavior program for a specific runtime.
+
+The first PetHatch runner supports a declarative config instead of embedding a scripting language:
+
+```json
+{
+  "activitySource": "keyboardMouse",
+  "idlePauseSeconds": 900,
+  "idleResetSeconds": 900,
+  "restBreakSeconds": 600,
+  "nodes": [
+    {
+      "id": "focus",
+      "label": "focus",
+      "event": "agent.running",
+      "default": true,
+      "message": "小柴陪你安静 coding。"
+    },
+    {
+      "id": "rest",
+      "label": "60m rest",
+      "event": "session.rest_suggested",
+      "trigger": {
+        "metric": "codingSessionMinutes",
+        "operator": ">=",
+        "value": 60
+      },
+      "message": "已经专注 60 分钟了，休息 10 分钟吧。"
+    }
+  ]
+}
+```
+
+`activitySource` is intentionally explicit. Current values:
+
+- `keyboardMouse`: use system keyboard/mouse input as the activity signal.
+- `runtimeEvent`: reserved for integrations that receive real events from Kaji, Codex, OpenPets, or another host runtime.
+
+This keeps the pet user-programmable without committing to Lua or another embedded language before the behavior model is stable.

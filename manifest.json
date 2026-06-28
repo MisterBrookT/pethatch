@@ -9,6 +9,7 @@
       "description": "一只眯眼笑、慵懒抱着竹子的小柴犬，陪你安静做事。",
       "path": "pets/xiaochai",
       "manifest": "pets/xiaochai/pet.json",
+      "runtime": "pets/xiaochai/runtime.json",
       "spritesheet": "pets/xiaochai/spritesheet.webp",
       "preview": "pets/xiaochai/preview.gif",
       "contactSheet": "pets/xiaochai/contact-sheet.png",

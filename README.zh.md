@@ -44,13 +44,14 @@ Gallery: <https://misterbrookt.github.io/pethatch/>
 ./bin/pethatch run xiaochai --demo
 ```
 
-Demo 模式会把真实分钟压缩成几秒，让你快速看到小柴从工作、检查、提醒休息，到软罢工的状态变化。
+Demo 模式会把真实分钟压缩成几秒，让你快速看到小柴从 focus 到 60 分钟休息提醒。
 
-runner 会根据系统键鼠空闲时间暂停计时，长时间休息后重置 session。默认是小尺寸和慢动画，避免挡住桌面。
+runner 由 `pets/xiaochai/runtime.json` 配置。小柴默认只有两个节点：`focus` 和 `60m rest`。当前 activity source 是键鼠活跃；15 分钟无输入后暂停/重置工作 session；触发休息提醒后，10 分钟无输入视为休息完成。默认是小尺寸和慢动画，避免挡住桌面。
 
 ```bash
 ./bin/pethatch run xiaochai --size medium
-./bin/pethatch run xiaochai --rest-after 300 --reset-after 900
+./bin/pethatch run xiaochai --rest-after 900 --rest-duration 600
+./bin/pethatch run xiaochai --config path/to/runtime.json
 ```
 
 `~/.codex/pets/<id>` 是 Codex Pets 和 OpenPets-compatible runtime 共用的本地约定。其它 runtime 可以读取同一目录，或从本仓库导入宠物包。

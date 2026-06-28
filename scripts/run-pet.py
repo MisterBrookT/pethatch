@@ -70,6 +70,35 @@ def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def load_runtime_config(pet_dir: Path, config_path: Path | None) -> dict:
+    path = config_path.expanduser() if config_path else pet_dir / "runtime.json"
+    if path.exists():
+        return load_json(path)
+    return {
+        "schemaVersion": "0.1.0",
+        "activitySource": "keyboardMouse",
+        "idlePauseSeconds": 900,
+        "idleResetSeconds": 900,
+        "restBreakSeconds": 600,
+        "nodes": [
+            {
+                "id": "focus",
+                "label": "focus",
+                "event": "agent.running",
+                "default": True,
+                "message": "小柴陪你安静 coding。",
+            },
+            {
+                "id": "rest",
+                "label": "60m rest",
+                "event": "session.rest_suggested",
+                "trigger": {"metric": "codingSessionMinutes", "operator": ">=", "value": 60},
+                "message": "已经专注 60 分钟了，休息 10 分钟吧。",
+            },
+        ],
+    }
+
+
 def ns_image_from_pil(image: Image.Image) -> NSImage:
     buffer = io.BytesIO()
     image.save(buffer, format="PNG")
@@ -100,34 +129,40 @@ def event_to_animation(pet: dict, event_name: str) -> str:
     return event.get("animation", "idle")
 
 
-def matched_rule(pet: dict, elapsed_minutes: float, quota_remaining: float) -> dict | None:
-    mode_priority = {"soft": 1, "medium": 2, "hard": 3}
+def trigger_matches(trigger: dict, elapsed_minutes: float, quota_remaining: float) -> bool:
+    metric = trigger.get("metric")
+    operator = trigger.get("operator")
+    value = trigger.get("value")
+    if not isinstance(value, (int, float)):
+        return False
+    current = None
+    if metric == "codingSessionMinutes":
+        current = elapsed_minutes
+    elif metric == "quotaRemainingFraction":
+        current = quota_remaining
+    if current is None:
+        return False
+    return (
+        (operator == ">=" and current >= value)
+        or (operator == "<=" and current <= value)
+        or (operator == ">" and current > value)
+        or (operator == "<" and current < value)
+        or (operator == "==" and current == value)
+    )
+
+
+def matched_node(config: dict, elapsed_minutes: float, quota_remaining: float) -> dict:
+    default_node = None
     matches = []
-    for rule in pet.get("behavior", {}).get("rules", []):
-        trigger = rule.get("trigger", {})
-        metric = trigger.get("metric")
-        operator = trigger.get("operator")
-        value = trigger.get("value")
-        if not isinstance(value, (int, float)):
-            continue
-        current = None
-        if metric == "codingSessionMinutes":
-            current = elapsed_minutes
-        elif metric == "quotaRemainingFraction":
-            current = quota_remaining
-        if current is None:
-            continue
-        if (
-            (operator == ">=" and current >= value)
-            or (operator == "<=" and current <= value)
-            or (operator == ">" and current > value)
-            or (operator == "<" and current < value)
-            or (operator == "==" and current == value)
-        ):
-            matches.append((mode_priority.get(rule.get("mode"), 0), float(value), rule))
-    if not matches:
-        return None
-    return sorted(matches, key=lambda item: (item[0], item[1]))[-1][2]
+    for index, node in enumerate(config.get("nodes", [])):
+        if node.get("default") and default_node is None:
+            default_node = node
+        trigger = node.get("trigger")
+        if trigger and trigger_matches(trigger, elapsed_minutes, quota_remaining):
+            matches.append((float(trigger.get("value", 0)), index, node))
+    if matches:
+        return sorted(matches, key=lambda item: (item[0], item[1]))[-1][2]
+    return default_node or {"id": "focus", "label": "focus", "event": "agent.running", "message": "正在陪你 coding"}
 
 
 def input_idle_seconds() -> float:
@@ -202,6 +237,7 @@ class PetController(NSObject):
         self.pet_dir = pet_dir
         self.pet = pet
         self.args = args
+        self.config = load_runtime_config(pet_dir, args.config)
         self.window_width, self.window_height, self.pet_size = SIZE_PRESETS[args.size]
         self.animations = load_animations(pet_dir, pet)
         self.animation = event_to_animation(pet, "agent.idle")
@@ -209,11 +245,12 @@ class PetController(NSObject):
         self.started_at = time.monotonic()
         self.last_tick_at = self.started_at
         self.active_minutes = 0.0
+        self.rest_started_at = None
         self.last_frame_at = 0.0
         self.last_event = "agent.idle"
         self.message = "休息中"
         self.title = f"{pet.get('displayName', pet.get('id', 'Pet'))} · idle"
-        self.manual_events = ["agent.running", "session.long", "session.rest_suggested", "session.soft_strike", "agent.idle"]
+        self.manual_events = [node.get("event", "agent.running") for node in self.config.get("nodes", [])] + ["agent.idle"]
         self.manual_index = 0
         self.manual_override_until = 0.0
         self.log_event("agent.idle", self.animation, self.message)
@@ -268,17 +305,16 @@ class PetController(NSObject):
         if resting:
             if self.active_minutes and idle_seconds >= self.args.reset_after:
                 self.active_minutes = 0.0
+                self.rest_started_at = None
             return False
         self.active_minutes += delta / self.args.minute_seconds
         return True
 
-    def node_title(self, rule: dict | None, active: bool) -> str:
+    def node_title(self, node: dict | None, active: bool) -> str:
         pet_name = self.pet.get("displayName", self.pet.get("id", "Pet"))
         if not active:
             return f"{pet_name} · rest"
-        if not rule:
-            return f"{pet_name} · focus"
-        label = rule.get("label", "").replace(" min", "m")
+        label = (node or {}).get("label", "focus")
         return f"{pet_name} · {label}"
 
     def update_state(self):
@@ -288,20 +324,23 @@ class PetController(NSObject):
         if not active:
             event_name = "agent.idle"
             message = "检测到休息，计时暂停"
-            rule = None
+            node = None
         else:
-            rule = matched_rule(self.pet, self.elapsed_minutes(), self.args.quota_remaining)
-            if rule:
-                event_name = rule["event"]
-                message = rule["message"]
+            node = matched_node(self.config, self.elapsed_minutes(), self.args.quota_remaining)
+            event_name = node.get("event", "agent.running")
+            message = node.get("message", "正在陪你 coding")
+            if node.get("id") == "rest":
+                self.rest_started_at = self.rest_started_at or time.monotonic()
             else:
-                event_name = "agent.running"
-                message = "正在陪你 coding"
-        if rule:
-            message = rule["message"]
+                self.rest_started_at = None
+        if self.rest_started_at and input_idle_seconds() >= self.args.rest_duration:
+            self.active_minutes = 0.0
+            self.rest_started_at = None
+            event_name = "agent.idle"
+            message = "休息完成，计时重置"
         if event_name != self.last_event:
             self.set_event(event_name, message)
-        self.title = self.node_title(rule, active)
+        self.title = self.node_title(node, active)
 
     def tick_(self, timer):  # noqa: N802 - AppKit selector
         now = time.monotonic()
@@ -328,6 +367,7 @@ class PetController(NSObject):
         self.started_at = time.monotonic()
         self.last_tick_at = self.started_at
         self.active_minutes = 0.0
+        self.rest_started_at = None
         self.manual_override_until = 0.0
         self.set_event("agent.idle", "计时已重置")
         self.view.setNeedsDisplay_(True)
@@ -340,9 +380,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run a PetHatch pet as a macOS desktop companion.")
     parser.add_argument("pet_dir", type=Path, help="Directory containing pet.json and spritesheet.webp.")
     parser.add_argument("--demo", action="store_true", help="Compress pet minutes so behavior changes quickly.")
+    parser.add_argument("--config", type=Path, default=None, help="Runtime behavior config JSON. Default: pet runtime.json.")
     parser.add_argument("--minute-seconds", type=float, default=None, help="Seconds per pet minute. Default: 60, demo: 0.25.")
-    parser.add_argument("--rest-after", type=float, default=None, help="Pause session after this many input-idle seconds. Default: 300, demo: 4.")
-    parser.add_argument("--reset-after", type=float, default=None, help="Reset session after this many input-idle seconds. Default: 900, demo: 10.")
+    parser.add_argument("--rest-after", type=float, default=None, help="Pause session after this many input-idle seconds. Default: runtime config, demo: 15.")
+    parser.add_argument("--reset-after", type=float, default=None, help="Reset session after this many input-idle seconds. Default: runtime config, demo: 15.")
+    parser.add_argument("--rest-duration", type=float, default=None, help="Idle seconds needed to complete a rest break. Default: runtime config, demo: 10.")
     parser.add_argument("--size", choices=sorted(SIZE_PRESETS), default="small", help="Desktop pet size.")
     parser.add_argument("--frame-interval", type=float, default=None, help="Override seconds between animation frames.")
     parser.add_argument("--quota-remaining", type=float, default=1.0, help="Quota remaining fraction for quota behavior demos.")
@@ -357,9 +399,11 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = build_parser().parse_args()
     args.minute_seconds = args.minute_seconds if args.minute_seconds is not None else (0.25 if args.demo else 60.0)
-    args.rest_after = args.rest_after if args.rest_after is not None else (4.0 if args.demo else 300.0)
-    args.reset_after = args.reset_after if args.reset_after is not None else (10.0 if args.demo else 900.0)
     pet_dir = args.pet_dir.expanduser().resolve()
+    config = load_runtime_config(pet_dir, args.config)
+    args.rest_after = args.rest_after if args.rest_after is not None else (15.0 if args.demo else float(config.get("idlePauseSeconds", 900)))
+    args.reset_after = args.reset_after if args.reset_after is not None else (15.0 if args.demo else float(config.get("idleResetSeconds", 900)))
+    args.rest_duration = args.rest_duration if args.rest_duration is not None else (10.0 if args.demo else float(config.get("restBreakSeconds", 600)))
     pet = load_json(pet_dir / "pet.json")
 
     app = NSApplication.sharedApplication()

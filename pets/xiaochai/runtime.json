@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "0.1.0",
+  "activitySource": "keyboardMouse",
+  "idlePauseSeconds": 900,
+  "idleResetSeconds": 900,
+  "restBreakSeconds": 600,
+  "nodes": [
+    {
+      "id": "focus",
+      "label": "focus",
+      "event": "agent.running",
+      "default": true,
+      "message": "小柴陪你安静 coding。"
+    },
+    {
+      "id": "rest",
+      "label": "60m rest",
+      "event": "session.rest_suggested",
+      "trigger": {
+        "metric": "codingSessionMinutes",
+        "operator": ">=",
+        "value": 60
+      },
+      "message": "已经专注 60 分钟了，休息 10 分钟吧。"
+    }
+  ]
+}

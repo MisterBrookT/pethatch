@@ -54,18 +54,8 @@
     "system.keep_awake_on": { "animation": "idle", "tone": "system" }
   },
   "behavior": {
-    "summary": "小柴是安静的 coding 伙伴：先轻提醒，再劝休息，超时会软罢工。",
+    "summary": "小柴默认只有两个状态：陪你专注，以及 60 分钟后提醒休息。",
     "rules": [
-      {
-        "id": "focus-warmup",
-        "label": "45 min focus check",
-        "event": "session.long",
-        "trigger": { "metric": "codingSessionMinutes", "operator": ">=", "value": 45 },
-        "animation": "review",
-        "tone": "warning",
-        "mode": "soft",
-        "message": "小柴看了你一眼：已经 45 分钟了，先检查一下状态。"
-      },
       {
         "id": "rest-suggested",
         "label": "60 min rest reminder",
@@ -74,27 +64,7 @@
         "animation": "waiting",
         "tone": "care",
         "mode": "medium",
-        "message": "小柴趴住不动：休息五分钟再继续。"
-      },
-      {
-        "id": "soft-strike",
-        "label": "90 min soft strike",
-        "event": "session.soft_strike",
-        "trigger": { "metric": "codingSessionMinutes", "operator": ">=", "value": 90 },
-        "animation": "failed",
-        "tone": "critical",
-        "mode": "hard",
-        "message": "小柴罢工了：这轮 vibe coding 太久了。"
-      },
-      {
-        "id": "quota-low",
-        "label": "Quota low warning",
-        "event": "quota.limit",
-        "trigger": { "metric": "quotaRemainingFraction", "operator": "<=", "value": 0.15 },
-        "animation": "waiting",
-        "tone": "critical",
-        "mode": "hard",
-        "message": "小柴提醒：额度快没了，休息一下或换 provider。"
+        "message": "已经专注 60 分钟了，休息 10 分钟吧。"
       }
     ]
   },

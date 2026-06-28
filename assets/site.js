@@ -32,8 +32,8 @@ function formatTrigger(trigger) {
   return `${metric} ${trigger.operator} ${value}`;
 }
 
-function renderBehavior(pet) {
-  const rules = pet.behavior?.rules || [];
+function renderBehavior(pet, runtime) {
+  const rules = runtime?.nodes || pet.behavior?.rules || [];
   behaviorRail.innerHTML = rules.map((rule) => `
     <article class="behavior-rule">
       <div class="trigger">${formatTrigger(rule.trigger)}</div>
@@ -41,7 +41,7 @@ function renderBehavior(pet) {
         <h3>${rule.label}</h3>
         <p>${rule.message}</p>
       </div>
-      <div class="mode ${rule.mode}">${rule.mode}</div>
+      <div class="mode ${rule.id}">${rule.default ? "default" : rule.id}</div>
     </article>
   `).join("");
 }
@@ -62,12 +62,13 @@ async function boot() {
     const manifest = await loadJson("manifest.json");
     const pets = await Promise.all(manifest.pets.map(async (entry) => {
       const pet = await loadJson(entry.manifest);
-      return { entry, pet };
+      const runtime = entry.runtime ? await loadJson(entry.runtime) : null;
+      return { entry, pet, runtime };
     }));
     pets.forEach(({ entry, pet }) => renderPetCard(entry, pet));
     const xiaochai = pets.find(({ pet }) => pet.id === "xiaochai") || pets[0];
     if (xiaochai) {
-      renderBehavior(xiaochai.pet);
+      renderBehavior(xiaochai.pet, xiaochai.runtime);
       renderEvents(xiaochai.pet);
     }
   } catch (error) {

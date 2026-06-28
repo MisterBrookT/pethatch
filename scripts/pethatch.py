@@ -107,12 +107,16 @@ def cmd_run(args: argparse.Namespace) -> int:
     ]
     if args.demo:
         command.append("--demo")
+    if args.config:
+        command.extend(["--config", str(args.config)])
     if args.minute_seconds is not None:
         command.extend(["--minute-seconds", str(args.minute_seconds)])
     if args.rest_after is not None:
         command.extend(["--rest-after", str(args.rest_after)])
     if args.reset_after is not None:
         command.extend(["--reset-after", str(args.reset_after)])
+    if args.rest_duration is not None:
+        command.extend(["--rest-duration", str(args.rest_duration)])
     if args.size:
         command.extend(["--size", args.size])
     if args.frame_interval is not None:
@@ -163,9 +167,11 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser = sub.add_parser("run", help="Run a pet as a tiny macOS desktop companion.")
     run_parser.add_argument("pet_id", help="Pet id from manifest.json, e.g. xiaochai.")
     run_parser.add_argument("--demo", action="store_true", help="Compress behavior thresholds for a quick local demo.")
+    run_parser.add_argument("--config", type=Path, default=None, help="Runtime behavior config JSON.")
     run_parser.add_argument("--minute-seconds", type=float, default=None, help="Seconds per pet minute.")
     run_parser.add_argument("--rest-after", type=float, default=None, help="Pause session after this many input-idle seconds.")
     run_parser.add_argument("--reset-after", type=float, default=None, help="Reset session after this many input-idle seconds.")
+    run_parser.add_argument("--rest-duration", type=float, default=None, help="Idle seconds needed to complete a rest break.")
     run_parser.add_argument("--size", choices=["small", "medium"], default=None, help="Desktop pet size.")
     run_parser.add_argument("--frame-interval", type=float, default=None, help="Override seconds between animation frames.")
     run_parser.add_argument("--quota-remaining", type=float, default=None, help="Quota remaining fraction, e.g. 0.15.")

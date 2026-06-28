@@ -23,6 +23,7 @@ REQUIRED_ANIMATIONS = [
 ]
 VALID_TONES = {"neutral", "working", "attention", "done", "warning", "critical", "care", "system"}
 VALID_BEHAVIOR_MODES = {"soft", "medium", "hard"}
+VALID_TRIGGER_OPERATORS = {">=", "<=", ">", "<", "=="}
 
 
 def fail(message: str) -> None:
@@ -152,7 +153,7 @@ def validate_pet(pet_dir: Path) -> dict:
         if mode not in VALID_BEHAVIOR_MODES:
             fail(f"{pet_json} behavior rule {rule_id!r} has invalid mode {mode!r}")
         trigger = rule.get("trigger") or {}
-        if not trigger.get("metric") or trigger.get("operator") not in {">=", "<=", ">", "<", "=="}:
+        if not trigger.get("metric") or trigger.get("operator") not in VALID_TRIGGER_OPERATORS:
             fail(f"{pet_json} behavior rule {rule_id!r} has invalid trigger")
         if not isinstance(trigger.get("value"), (int, float)):
             fail(f"{pet_json} behavior rule {rule_id!r} trigger value must be numeric")
@@ -170,7 +171,42 @@ def validate_pet(pet_dir: Path) -> dict:
                 if preview_width < 1 or preview_height < 1:
                     fail(f"{pet_json} preview {preview_key!r} has invalid size")
 
+    validate_runtime_config(pet_dir, pet)
     return pet
+
+
+def validate_runtime_config(pet_dir: Path, pet: dict) -> None:
+    runtime_path = pet_dir / "runtime.json"
+    if not runtime_path.exists():
+        return
+    runtime = load_json(runtime_path)
+    if runtime.get("activitySource") not in {"keyboardMouse", "runtimeEvent"}:
+        fail(f"{runtime_path} activitySource must be keyboardMouse or runtimeEvent")
+    for key in ("idlePauseSeconds", "idleResetSeconds", "restBreakSeconds"):
+        value = runtime.get(key)
+        if not isinstance(value, (int, float)) or value < 0:
+            fail(f"{runtime_path} {key} must be a non-negative number")
+    event_names = set(pet.get("events", {}))
+    nodes = runtime.get("nodes")
+    if not isinstance(nodes, list) or not nodes:
+        fail(f"{runtime_path} nodes must be a non-empty array")
+    default_count = 0
+    for node in nodes:
+        node_id = node.get("id", "<missing>")
+        if not node.get("id") or not node.get("label") or not node.get("event"):
+            fail(f"{runtime_path} node {node_id!r} missing id, label, or event")
+        if node.get("event") not in event_names:
+            fail(f"{runtime_path} node {node_id!r} references unknown event {node.get('event')!r}")
+        if node.get("default"):
+            default_count += 1
+        trigger = node.get("trigger")
+        if trigger:
+            if not trigger.get("metric") or trigger.get("operator") not in VALID_TRIGGER_OPERATORS:
+                fail(f"{runtime_path} node {node_id!r} has invalid trigger")
+            if not isinstance(trigger.get("value"), (int, float)):
+                fail(f"{runtime_path} node {node_id!r} trigger value must be numeric")
+    if default_count != 1:
+        fail(f"{runtime_path} must declare exactly one default node")
 
 
 def validate_manifest(pets: dict[str, dict]) -> None:
@@ -186,7 +222,7 @@ def validate_manifest(pets: dict[str, dict]) -> None:
         ids.add(pet_id)
         if pet_id not in pets:
             fail(f"{manifest_path} references missing pet {pet_id!r}")
-        for key in ("manifest", "spritesheet", "preview", "contactSheet"):
+        for key in ("manifest", "runtime", "spritesheet", "preview", "contactSheet"):
             rel = entry.get(key)
             if rel and not (ROOT / rel).exists():
                 fail(f"{manifest_path} entry {pet_id!r} references missing {key}: {rel}")

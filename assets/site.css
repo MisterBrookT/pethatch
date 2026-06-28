@@ -382,6 +382,15 @@ a:focus-visible {
   background: var(--critical);
 }
 
+.mode.focus,
+.mode.default {
+  background: var(--blue);
+}
+
+.mode.rest {
+  background: var(--moss);
+}
+
 .asset-sheet {
   display: grid;
   grid-template-columns: minmax(280px, 0.78fr) minmax(320px, 1.22fr);
