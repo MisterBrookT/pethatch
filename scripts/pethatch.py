@@ -109,6 +109,14 @@ def cmd_run(args: argparse.Namespace) -> int:
         command.append("--demo")
     if args.minute_seconds is not None:
         command.extend(["--minute-seconds", str(args.minute_seconds)])
+    if args.rest_after is not None:
+        command.extend(["--rest-after", str(args.rest_after)])
+    if args.reset_after is not None:
+        command.extend(["--reset-after", str(args.reset_after)])
+    if args.size:
+        command.extend(["--size", args.size])
+    if args.frame_interval is not None:
+        command.extend(["--frame-interval", str(args.frame_interval)])
     if args.quota_remaining is not None:
         command.extend(["--quota-remaining", str(args.quota_remaining)])
     if args.duration:
@@ -156,6 +164,10 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("pet_id", help="Pet id from manifest.json, e.g. xiaochai.")
     run_parser.add_argument("--demo", action="store_true", help="Compress behavior thresholds for a quick local demo.")
     run_parser.add_argument("--minute-seconds", type=float, default=None, help="Seconds per pet minute.")
+    run_parser.add_argument("--rest-after", type=float, default=None, help="Pause session after this many input-idle seconds.")
+    run_parser.add_argument("--reset-after", type=float, default=None, help="Reset session after this many input-idle seconds.")
+    run_parser.add_argument("--size", choices=["small", "medium"], default=None, help="Desktop pet size.")
+    run_parser.add_argument("--frame-interval", type=float, default=None, help="Override seconds between animation frames.")
     run_parser.add_argument("--quota-remaining", type=float, default=None, help="Quota remaining fraction, e.g. 0.15.")
     run_parser.add_argument("--duration", type=float, default=0.0, help="Exit after this many seconds.")
     run_parser.add_argument("--log-events", action="store_true", help="Print event transitions to stdout.")

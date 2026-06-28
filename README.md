@@ -48,6 +48,13 @@ Try the compressed behavior demo:
 
 In demo mode, Xiaochai moves from active work to focus check, rest reminder, and soft strike in seconds instead of real minutes.
 
+The runner pauses session time after input-idle time and resets after a longer rest window. By default, it uses a small pet size and slow animation so it can sit on the desktop without dominating the screen.
+
+```bash
+./bin/pethatch run xiaochai --size medium
+./bin/pethatch run xiaochai --rest-after 300 --reset-after 900
+```
+
 `~/.codex/pets/<id>` is the shared local convention used by Codex Pets and OpenPets-compatible runtimes. Other runtimes can read the same folder or import the pack from this repo.
 
 ## Pet Packs

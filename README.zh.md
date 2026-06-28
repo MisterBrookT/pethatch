@@ -46,6 +46,13 @@ Gallery: <https://misterbrookt.github.io/pethatch/>
 
 Demo 模式会把真实分钟压缩成几秒，让你快速看到小柴从工作、检查、提醒休息，到软罢工的状态变化。
 
+runner 会根据系统键鼠空闲时间暂停计时，长时间休息后重置 session。默认是小尺寸和慢动画，避免挡住桌面。
+
+```bash
+./bin/pethatch run xiaochai --size medium
+./bin/pethatch run xiaochai --rest-after 300 --reset-after 900
+```
+
 `~/.codex/pets/<id>` 是 Codex Pets 和 OpenPets-compatible runtime 共用的本地约定。其它 runtime 可以读取同一目录，或从本仓库导入宠物包。
 
 ## 宠物包
