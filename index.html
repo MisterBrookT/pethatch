@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="PetHatch is an open market for desktop pet packs with behavior rules for agent runtimes.">
+    <title>PetHatch</title>
+    <link rel="icon" href="pets/xiaochai/preview.gif">
+    <link rel="stylesheet" href="assets/site.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="PetHatch home">
+        <span class="mark"></span>
+        <span>PetHatch</span>
+      </a>
+      <nav aria-label="Primary">
+        <a href="#pets">Pets</a>
+        <a href="#behavior">Behavior</a>
+        <a href="https://github.com/MisterBrookT/pethatch">GitHub</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Open pet packs for desktop agents</p>
+          <h1 id="hero-title">Pets that know when your coding session has gone too long.</h1>
+          <p class="lede">
+            PetHatch ships animated pet packs with behavior rules: quota pressure,
+            rest reminders, and soft strike states that any compatible runtime can use.
+          </p>
+          <div class="command" role="group" aria-label="Install command">
+            <code>./bin/pethatch install xiaochai --force</code>
+            <button type="button" data-copy="./bin/pethatch install xiaochai --force">Copy</button>
+          </div>
+        </div>
+        <div class="hero-pet" aria-label="Xiaochai pet preview">
+          <img src="pets/xiaochai/preview.gif" alt="Xiaochai breathing calmly">
+          <div class="pet-note">
+            <strong>小柴</strong>
+            <span>60 min rest reminder · 90 min soft strike</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="pets" class="section">
+        <div class="section-head">
+          <p class="eyebrow">Pack registry</p>
+          <h2>Current pets</h2>
+        </div>
+        <div id="pet-grid" class="pet-grid" aria-live="polite"></div>
+      </section>
+
+      <section id="behavior" class="section split">
+        <div class="section-head">
+          <p class="eyebrow">Why PetHatch is different</p>
+          <h2>Behavior is part of the pack.</h2>
+          <p>
+            A pet pack should not only say what the pet looks like. It should say
+            how the pet reacts when the runtime sees quota pressure, long focus,
+            or a session that needs a break.
+          </p>
+        </div>
+        <div id="behavior-rail" class="behavior-rail"></div>
+      </section>
+
+      <section class="section split event-section">
+        <div class="section-head">
+          <p class="eyebrow">Event map</p>
+          <h2>Runtimes send events. Pets choose reactions.</h2>
+          <p>
+            PetHatch packs keep animation rows stable, then layer semantic
+            events on top. This is the part a normal asset gallery does not show.
+          </p>
+        </div>
+        <div id="event-map" class="event-map"></div>
+      </section>
+
+      <section class="section asset-sheet" aria-labelledby="sheet-title">
+        <div>
+          <p class="eyebrow">Nine-state atlas</p>
+          <h2 id="sheet-title">Compatible with Codex Pets and OpenPets-style runtimes.</h2>
+          <p>
+            The atlas keeps the stable 8 x 9 grid. Behavior rules map richer
+            runtime events onto the existing rows instead of inventing endless
+            new sprite states.
+          </p>
+        </div>
+        <img src="pets/xiaochai/contact-sheet.png" alt="Xiaochai full contact sheet with nine animation rows">
+      </section>
+    </main>
+
+    <footer>
+      <span>PetHatch</span>
+      <a href="docs/protocol.md">Protocol</a>
+      <a href="docs/adapters.md">Adapters</a>
+      <a href="manifest.json">Manifest</a>
+    </footer>
+
+    <script src="assets/site.js"></script>
+  </body>
+</html>

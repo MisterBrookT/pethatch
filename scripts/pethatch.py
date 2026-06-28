@@ -60,6 +60,7 @@ def cmd_list(_: argparse.Namespace) -> int:
 
 def cmd_validate(_: argparse.Namespace) -> int:
     subprocess.run([sys.executable, str(ROOT / "scripts" / "validate-pets.py")], check=True)
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "validate-site.py")], check=True)
     return 0
 
 

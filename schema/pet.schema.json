@@ -62,6 +62,41 @@
           "threshold": { "type": "string" }
         }
       }
+    },
+    "behavior": {
+      "type": "object",
+      "required": ["summary", "rules"],
+      "properties": {
+        "summary": { "type": "string", "minLength": 1 },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "label", "event", "trigger", "animation", "tone", "mode", "message"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,62}$" },
+              "label": { "type": "string", "minLength": 1 },
+              "event": { "type": "string", "minLength": 1 },
+              "trigger": {
+                "type": "object",
+                "required": ["metric", "operator", "value"],
+                "properties": {
+                  "metric": { "type": "string", "minLength": 1 },
+                  "operator": { "type": "string", "enum": [">=", "<=", ">", "<", "=="] },
+                  "value": { "type": "number" }
+                }
+              },
+              "animation": { "type": "string", "minLength": 1 },
+              "tone": {
+                "type": "string",
+                "enum": ["neutral", "working", "attention", "done", "warning", "critical", "care", "system"]
+              },
+              "mode": { "type": "string", "enum": ["soft", "medium", "hard"] },
+              "message": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
     }
   }
 }

@@ -21,6 +21,8 @@ REQUIRED_ANIMATIONS = [
     "running",
     "review",
 ]
+VALID_TONES = {"neutral", "working", "attention", "done", "warning", "critical", "care", "system"}
+VALID_BEHAVIOR_MODES = {"soft", "medium", "hard"}
 
 
 def fail(message: str) -> None:
@@ -126,10 +128,34 @@ def validate_pet(pet_dir: Path) -> dict:
             fail(f"{pet_json} animation {name!r} has invalid frame count {frames!r}")
 
     animation_names = set(by_name)
+    event_names = set(pet.get("events", {}))
     for event_name, event in pet.get("events", {}).items():
         animation = event.get("animation")
         if animation not in animation_names:
             fail(f"{pet_json} event {event_name!r} references unknown animation {animation!r}")
+        tone = event.get("tone")
+        if tone not in VALID_TONES:
+            fail(f"{pet_json} event {event_name!r} has invalid tone {tone!r}")
+
+    for rule in pet.get("behavior", {}).get("rules", []):
+        rule_id = rule.get("id", "<missing>")
+        animation = rule.get("animation")
+        if animation not in animation_names:
+            fail(f"{pet_json} behavior rule {rule_id!r} references unknown animation {animation!r}")
+        event_name = rule.get("event")
+        if event_name not in event_names:
+            fail(f"{pet_json} behavior rule {rule_id!r} references unknown event {event_name!r}")
+        tone = rule.get("tone")
+        if tone not in VALID_TONES:
+            fail(f"{pet_json} behavior rule {rule_id!r} has invalid tone {tone!r}")
+        mode = rule.get("mode")
+        if mode not in VALID_BEHAVIOR_MODES:
+            fail(f"{pet_json} behavior rule {rule_id!r} has invalid mode {mode!r}")
+        trigger = rule.get("trigger") or {}
+        if not trigger.get("metric") or trigger.get("operator") not in {">=", "<=", ">", "<", "=="}:
+            fail(f"{pet_json} behavior rule {rule_id!r} has invalid trigger")
+        if not isinstance(trigger.get("value"), (int, float)):
+            fail(f"{pet_json} behavior rule {rule_id!r} trigger value must be numeric")
 
     for preview_key in ("contactSheet", "animation"):
         preview_path = pet.get("preview", {}).get(preview_key)

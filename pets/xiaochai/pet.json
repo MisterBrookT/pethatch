@@ -50,7 +50,53 @@
     "quota.limit": { "animation": "waiting", "tone": "critical", "threshold": ">=95% used or <=15% remaining" },
     "session.long": { "animation": "review", "tone": "warning", "threshold": ">=60 minutes" },
     "session.rest_suggested": { "animation": "waiting", "tone": "care", "threshold": "runtime-defined rest suggestion" },
+    "session.soft_strike": { "animation": "failed", "tone": "critical", "threshold": ">=90 minutes without break" },
     "system.keep_awake_on": { "animation": "idle", "tone": "system" }
+  },
+  "behavior": {
+    "summary": "小柴是安静的 coding 伙伴：先轻提醒，再劝休息，超时会软罢工。",
+    "rules": [
+      {
+        "id": "focus-warmup",
+        "label": "45 min focus check",
+        "event": "session.long",
+        "trigger": { "metric": "codingSessionMinutes", "operator": ">=", "value": 45 },
+        "animation": "review",
+        "tone": "warning",
+        "mode": "soft",
+        "message": "小柴看了你一眼：已经 45 分钟了，先检查一下状态。"
+      },
+      {
+        "id": "rest-suggested",
+        "label": "60 min rest reminder",
+        "event": "session.rest_suggested",
+        "trigger": { "metric": "codingSessionMinutes", "operator": ">=", "value": 60 },
+        "animation": "waiting",
+        "tone": "care",
+        "mode": "medium",
+        "message": "小柴趴住不动：休息五分钟再继续。"
+      },
+      {
+        "id": "soft-strike",
+        "label": "90 min soft strike",
+        "event": "session.soft_strike",
+        "trigger": { "metric": "codingSessionMinutes", "operator": ">=", "value": 90 },
+        "animation": "failed",
+        "tone": "critical",
+        "mode": "hard",
+        "message": "小柴罢工了：这轮 vibe coding 太久了。"
+      },
+      {
+        "id": "quota-low",
+        "label": "Quota low warning",
+        "event": "quota.limit",
+        "trigger": { "metric": "quotaRemainingFraction", "operator": "<=", "value": 0.15 },
+        "animation": "waiting",
+        "tone": "critical",
+        "mode": "hard",
+        "message": "小柴提醒：额度快没了，休息一下或换 provider。"
+      }
+    ]
   },
   "compatibility": {
     "codexPets": true,

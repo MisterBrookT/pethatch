@@ -81,7 +81,7 @@ Recommended event families:
 
 - `agent.*`: `idle`, `running`, `waiting`, `review`, `failed`.
 - `quota.*`: `healthy`, `active`, `pressure`, `limit`.
-- `session.*`: `long`, `rest_suggested`.
+- `session.*`: `long`, `rest_suggested`, `soft_strike`.
 - `system.*`: `keep_awake_on`, `update_available`.
 
 Recommended event meanings:
@@ -92,6 +92,7 @@ Recommended event meanings:
 | `quota.limit` | `waiting` | A quota window is exhausted or nearly exhausted. |
 | `session.long` | `review` | A focused work session has crossed a runtime-defined duration threshold. |
 | `session.rest_suggested` | `waiting` | The runtime has decided the user should rest. This may combine session length, quota pressure, time of day, or user preference. |
+| `session.soft_strike` | `failed` | The runtime has decided the pet should strongly discourage continued work. This is advisory by default, not a hard runtime lock. |
 | `system.keep_awake_on` | `idle` | The machine is intentionally kept awake. |
 | `system.update_available` | `waving` | A runtime or adapter update is available. |
 
@@ -107,7 +108,36 @@ Use:
 - `quota.limit` -> `waiting`
 - `session.long` -> `review`
 - `session.rest_suggested` -> `waiting`
+- `session.soft_strike` -> `failed`
 
 Surface renderers may show compact badges such as `15%`, `5h`, `7d`, or `60m`, but the pet pack only declares semantic event mappings.
 
 `waiting` is intentionally broad. It may mean resource-blocked, interaction-blocked, or approval-blocked. The semantic distinction belongs in `tone`, `reason`, metrics, or a runtime-owned detail surface rather than in extra required animation rows.
+
+## Behavior Rules
+
+Pet packs may include `behavior.rules` to describe how the character wants to react to runtime metrics. These rules are declarative. Runtimes may ignore them, expose them as settings, or use them to emit matching events.
+
+Example:
+
+```json
+{
+  "id": "soft-strike",
+  "event": "session.soft_strike",
+  "trigger": {
+    "metric": "codingSessionMinutes",
+    "operator": ">=",
+    "value": 90
+  },
+  "animation": "failed",
+  "tone": "critical",
+  "mode": "hard",
+  "message": "This session has gone too long."
+}
+```
+
+Modes are advisory:
+
+- `soft`: low-friction nudge.
+- `medium`: visible reminder.
+- `hard`: strong visual refusal, still not a hard block unless a runtime chooses to enforce it.

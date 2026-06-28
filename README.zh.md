@@ -6,6 +6,8 @@
 
 PetHatch 收集可运行的 animated pet packs。它可以被 Codex-compatible runtime、OpenPets、agent status app、Kaji 等消费，但不绑定任何单一产品。
 
+Gallery: <https://misterbrookt.github.io/pethatch/>
+
 ```bash
 ./bin/pethatch install xiaochai --force
 ```

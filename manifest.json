@@ -1,7 +1,7 @@
 {
   "schemaVersion": "0.1.0",
   "name": "PetHatch",
-  "description": "An open pet-pack market for desktop agents and companion runtimes.",
+  "description": "An open market for desktop pet packs.",
   "pets": [
     {
       "id": "xiaochai",
