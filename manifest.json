@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "0.1.0",
+  "name": "PetHatch",
+  "description": "An open pet-pack market for desktop agents and companion runtimes.",
+  "pets": [
+    {
+      "id": "xiaochai",
+      "displayName": "小柴",
+      "description": "一只眯眼笑、慵懒抱着竹子的小柴犬，陪你安静做事。",
+      "path": "pets/xiaochai",
+      "manifest": "pets/xiaochai/pet.json",
+      "spritesheet": "pets/xiaochai/spritesheet.webp",
+      "preview": "pets/xiaochai/preview.gif",
+      "contactSheet": "pets/xiaochai/contact-sheet.png",
+      "tags": ["shiba", "dog", "cozy", "focus", "agent-status"]
+    }
+  ]
+}

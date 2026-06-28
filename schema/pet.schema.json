@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pethatch.dev/schema/pet.schema.json",
+  "title": "PetHatch Pet Pack",
+  "type": "object",
+  "required": ["schemaVersion", "id", "displayName", "description", "license", "spritesheet", "animations"],
+  "additionalProperties": true,
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,62}$" },
+    "displayName": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "kind": { "type": "string", "enum": ["creature", "object", "character", "abstract"] },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "vibes": { "type": "array", "items": { "type": "string" } },
+    "license": {
+      "type": "object",
+      "required": ["assets"],
+      "properties": {
+        "code": { "type": "string" },
+        "assets": { "type": "string", "minLength": 1 }
+      }
+    },
+    "spritesheet": {
+      "type": "object",
+      "required": ["path", "columns", "rows", "cellWidth", "cellHeight"],
+      "properties": {
+        "path": { "type": "string" },
+        "columns": { "type": "integer", "const": 8 },
+        "rows": { "type": "integer", "const": 9 },
+        "cellWidth": { "type": "integer", "minimum": 1 },
+        "cellHeight": { "type": "integer", "minimum": 1 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "animations": {
+      "type": "array",
+      "minItems": 9,
+      "items": {
+        "type": "object",
+        "required": ["name", "row", "frames"],
+        "properties": {
+          "name": { "type": "string" },
+          "row": { "type": "integer", "minimum": 0, "maximum": 8 },
+          "frames": { "type": "integer", "minimum": 1, "maximum": 8 },
+          "purpose": { "type": "string" }
+        }
+      }
+    },
+    "events": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["animation", "tone"],
+        "properties": {
+          "animation": { "type": "string" },
+          "tone": {
+            "type": "string",
+            "enum": ["neutral", "working", "attention", "done", "warning", "critical", "care", "system"]
+          },
+          "threshold": { "type": "string" }
+        }
+      }
+    }
+  }
+}

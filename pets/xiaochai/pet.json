@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "xiaochai",
+  "displayName": "小柴",
+  "description": "一只眯眼笑、慵懒抱着竹子的小柴犬，陪你安静做事。",
+  "kind": "creature",
+  "tags": ["shiba", "dog", "cozy", "focus", "agent-status"],
+  "vibes": ["calm", "warm", "quiet"],
+  "author": {
+    "name": "Bubu",
+    "url": "https://github.com/MisterBrookT"
+  },
+  "license": {
+    "code": "MIT",
+    "assets": "CC-BY-NC-4.0"
+  },
+  "spritesheet": {
+    "path": "spritesheet.webp",
+    "columns": 8,
+    "rows": 9,
+    "cellWidth": 192,
+    "cellHeight": 208,
+    "width": 1536,
+    "height": 1872
+  },
+  "preview": {
+    "contactSheet": "contact-sheet.png",
+    "animation": "preview.gif"
+  },
+  "animations": [
+    { "name": "idle", "row": 0, "frames": 6, "purpose": "Calm resting, breathing, and blinking loop." },
+    { "name": "running-right", "row": 1, "frames": 8, "purpose": "Rightward drag movement loop." },
+    { "name": "running-left", "row": 2, "frames": 8, "purpose": "Leftward drag movement loop." },
+    { "name": "waving", "row": 3, "frames": 4, "purpose": "Greeting or attention gesture." },
+    { "name": "jumping", "row": 4, "frames": 5, "purpose": "Hover or playful jump." },
+    { "name": "failed", "row": 5, "frames": 8, "purpose": "Blocked, failed, or cancelled reaction." },
+    { "name": "waiting", "row": 6, "frames": 6, "purpose": "Waiting for approval, help, quota reset, or user input." },
+    { "name": "running", "row": 7, "frames": 6, "purpose": "Active task work or processing." },
+    { "name": "review", "row": 8, "frames": 6, "purpose": "Ready or completed output review." }
+  ],
+  "events": {
+    "agent.idle": { "animation": "idle", "tone": "neutral" },
+    "agent.running": { "animation": "running", "tone": "working" },
+    "agent.waiting": { "animation": "waiting", "tone": "attention" },
+    "agent.review": { "animation": "review", "tone": "done" },
+    "agent.failed": { "animation": "failed", "tone": "critical" },
+    "quota.healthy": { "animation": "idle", "tone": "neutral" },
+    "quota.active": { "animation": "running", "tone": "working" },
+    "quota.pressure": { "animation": "review", "tone": "warning", "threshold": ">=80% used" },
+    "quota.limit": { "animation": "waiting", "tone": "critical", "threshold": ">=95% used or <=15% remaining" },
+    "session.long": { "animation": "review", "tone": "warning", "threshold": ">=60 minutes" },
+    "session.rest_suggested": { "animation": "waiting", "tone": "care", "threshold": "runtime-defined rest suggestion" },
+    "system.keep_awake_on": { "animation": "idle", "tone": "system" }
+  },
+  "compatibility": {
+    "codexPets": true,
+    "openPets": true,
+    "petdexLike": true,
+    "runtimeNotes": "Runtimes that only support the classic 9-row atlas can ignore events and use animations directly."
+  }
+}
