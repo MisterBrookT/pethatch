@@ -12,23 +12,23 @@ It is not tied to Kaji. Kaji can consume PetHatch packs, but every pet should re
   <img src="pets/xiaochai/contact-sheet.png" width="820" alt="Xiaochai pet contact sheet">
 </p>
 
-## Install A Pet
+## Use Locally
 
-Today, install manually:
+List available pets:
 
 ```bash
-mkdir -p ~/.codex/pets/xiaochai
-cp pets/xiaochai/pet.json ~/.codex/pets/xiaochai/pet.json
-cp pets/xiaochai/spritesheet.webp ~/.codex/pets/xiaochai/spritesheet.webp
+./bin/pethatch list
 ```
+
+Install Xiaochai:
+
+```bash
+./bin/pethatch install xiaochai --force
+```
+
+This writes `pet.json` and `spritesheet.webp` to `~/.codex/pets/xiaochai/`.
 
 `~/.codex/pets/<id>` is the shared local convention used by Codex Pets and OpenPets-compatible runtimes. Other runtimes can read the same folder or import the pack from this repo.
-
-Future CLI target:
-
-```bash
-pethatch install xiaochai
-```
 
 ## Pet Packs
 
@@ -66,7 +66,7 @@ Product-specific states such as quota pressure, long sessions, or rest reminders
 ## Validate
 
 ```bash
-python3 scripts/validate-pets.py
+./bin/pethatch validate
 ```
 
 ## Contribute

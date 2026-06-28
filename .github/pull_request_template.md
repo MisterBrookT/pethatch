@@ -10,4 +10,4 @@ What pet, protocol, or documentation change does this PR add?
 
 ## Validation
 
-- [ ] `python3 scripts/validate-pets.py`
+- [ ] `./bin/pethatch validate`

@@ -19,15 +19,13 @@ Update `manifest.json` with the new pet.
 Run:
 
 ```bash
-python3 scripts/validate-pets.py
+./bin/pethatch validate
 ```
 
-Test locally by copying your pet into the shared local pet directory:
+Test locally by installing your pet into the shared local pet directory:
 
 ```bash
-mkdir -p ~/.codex/pets/my-pet
-cp pets/my-pet/pet.json ~/.codex/pets/my-pet/pet.json
-cp pets/my-pet/spritesheet.webp ~/.codex/pets/my-pet/spritesheet.webp
+./bin/pethatch install my-pet --force
 ```
 
 Then open a compatible runtime such as Codex Pets or OpenPets.
