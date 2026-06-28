@@ -1,0 +1,13 @@
+{
+  "source": "openpets",
+  "notify": {
+    "title": "Quota is tight",
+    "text": "Codex 5h remaining is under 15%.",
+    "status": "waiting"
+  },
+  "petHatchEvent": "quota.limit",
+  "resolvedPetAnimation": {
+    "animation": "waiting",
+    "tone": "critical"
+  }
+}

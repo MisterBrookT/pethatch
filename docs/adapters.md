@@ -10,6 +10,24 @@ PetHatch is a pet-pack market, not a single runtime.
 - Kaji: can emit quota and system events that map to PetHatch event extensions.
 - Agent desktop pets: can use the same pack as their visual theme.
 
+## Resolve An Event
+
+PetHatch packs declare optional `events`. A runtime can resolve an event to an animation:
+
+```bash
+python3 examples/event-resolver.py pets/xiaochai/pet.json quota.limit
+```
+
+Output:
+
+```json
+{
+  "animation": "waiting",
+  "tone": "critical",
+  "threshold": ">=95% used or <=15% remaining"
+}
+```
+
 ## Generic Event Mapping Example
 
 A runtime may have its own internal signal names and metrics:
@@ -37,3 +55,8 @@ The adapter should translate that runtime-specific signal into a PetHatch event:
 ```
 
 Kaji can do this translation for quota and session metrics, but the pack remains useful without Kaji.
+
+See also:
+
+- `examples/kaji-quota-event.json`
+- `examples/openpets-notify.json`

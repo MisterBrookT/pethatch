@@ -1,0 +1,19 @@
+{
+  "source": "kaji",
+  "runtimeSignal": {
+    "state": "waiting",
+    "reason": "quota_limit",
+    "summary": "Codex 5h quota is under 15%. Take a break or switch provider.",
+    "metrics": {
+      "provider": "codex",
+      "window": "5h",
+      "remainingFraction": 0.15,
+      "sessionMinutes": 63
+    }
+  },
+  "petHatchEvent": "quota.limit",
+  "resolvedPetAnimation": {
+    "animation": "waiting",
+    "tone": "critical"
+  }
+}
